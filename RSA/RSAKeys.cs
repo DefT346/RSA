@@ -9,8 +9,18 @@ namespace RSA
 {
     internal class RSAKeys
     {
+        public BigInteger e { get; private set; }
+        public BigInteger d { get; private set; }
+        public BigInteger n { get; private set; }
+        public int size { get; private set; }
 
-        public static (BigInteger e, BigInteger d, BigInteger n) Generate(int size)
+        public RSAKeys(int size)
+        {
+            this.size = size;
+            Generate(this.size);
+        }
+
+        public void Generate(int size)
         {
             Console.WriteLine("Поиск простых чисел..");
             var p = new BigPrime(size / 2);
@@ -34,14 +44,12 @@ namespace RSA
 
             BigInteger e = AdvEuler(fi, d).y; // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
 
-
             if (e < 0)
-            {
-
                 e += fi;
-            }
 
-            return (e, d, n);
+            this.e = e;
+            this.d = d;
+            this.n = n;
         }
 
         static (BigInteger x, BigInteger y) AdvEuler(BigInteger a, BigInteger b)
