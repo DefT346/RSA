@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 
 namespace RSA
 {
@@ -25,7 +20,11 @@ namespace RSA
             Console.WriteLine("Поиск простых чисел..");
             var p = new BigPrime(size / 2);
             var q = new BigPrime(size / 2);
-            Console.WriteLine("Генерация ключей");
+            Console.WriteLine($"\np = {p}");
+            Console.WriteLine($"\nq = {q}");
+
+
+            Console.WriteLine("\nГенерация ключей");
             var n = p * q;
 
             var fi = Euler(p, q);
@@ -52,6 +51,7 @@ namespace RSA
             this.n = n;
         }
 
+        static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1);
         static (BigInteger x, BigInteger y) AdvEuler(BigInteger a, BigInteger b)
         {
             Matrix E = new Matrix(new BigInteger[,]
@@ -62,7 +62,6 @@ namespace RSA
 
             while (true)
             {
-
                 var max = BigInteger.Max(a, b);
                 var min = BigInteger.Min(a, b);
                 a = max;
@@ -89,24 +88,5 @@ namespace RSA
                 }
             }
         }
-
-        static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1);
-
-        //public BigInteger GeneratePrivateKey(BigInteger e, BigInteger m)
-        //{
-        //    var d = (1 / e) % m;
-        //    return d;
-        //}
-
-        //public BigInteger GeneratePublicKey(BigInteger e, BigInteger n, BigInteger m) 
-        //{
-        //    while (e > 1)
-        //    {
-        //        BigInteger ef = BigInteger.Pow(e, m);
-        //        BigInteger.ModPow();
-        //        ef = 1 % n;
-        //    }
-        //    return e;
-        //}
     }
 }

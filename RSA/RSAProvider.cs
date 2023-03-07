@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RSA
 {
     internal class RSAProvider
     {
-
-        private static BigInteger[] ToNums(int blockSize, string text)
+        private static BigInteger[] ToNums(string text)
         {
+            var blockSize = 32;
+
             List<BigInteger> blocks = new List<BigInteger>();
 
             var block = "";
@@ -40,9 +37,9 @@ namespace RSA
             return text;
         }
 
-        public static BigInteger[] Encode(BigInteger e, BigInteger n, int blockSize, string message)
+        public static BigInteger[] Encrypt(BigInteger e, BigInteger n,string message)
         {
-            var blocks = ToNums(blockSize, message);
+            var blocks = ToNums(message);
 
             for(int i = 0; i< blocks.Length; i++)
                 blocks[i] = BigInteger.ModPow(blocks[i], e, n);
@@ -50,7 +47,7 @@ namespace RSA
             return blocks;
         }
 
-        public static string Decode(BigInteger d, BigInteger n, BigInteger[] encodedData)
+        public static string Decrypt(BigInteger d, BigInteger n, BigInteger[] encodedData)
         {
             var message = "";
             for (int i = 0; i < encodedData.Length; i++)     
