@@ -8,7 +8,7 @@ namespace RSA
 
         public int bitsCount { get; private set; }
 
-        public BigPrime(int size = 512)
+        public BigPrime(int size = 1024)
         {
             bitsCount = size;
             var randomNumber = GetRandom(size);

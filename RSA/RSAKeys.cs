@@ -23,13 +23,12 @@ namespace RSA
             Console.WriteLine($"\np = {p}");
             Console.WriteLine($"\nq = {q}");
 
-
             Console.WriteLine("\nГенерация ключей");
-            var n = p * q;
+            n = p * q;
 
             var fi = Euler(p, q);
 
-            BigInteger d = new BigPrime(p.bitsCount + q.bitsCount).ToBigInteger();
+            d = new BigPrime(p.bitsCount + q.bitsCount).ToBigInteger();
             while (d >= fi)
             {
                 d -= fi - 1;
@@ -41,17 +40,14 @@ namespace RSA
                 else d -= 1;
             }
 
-            BigInteger e = AdvEuler(fi, d).y; // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
+            e = AdvEuler(fi, d).y; // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
 
             if (e < 0)
                 e += fi;
-
-            this.e = e;
-            this.d = d;
-            this.n = n;
         }
 
-        static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1);
+        static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1); // Функция Эйлера
+
         static (BigInteger x, BigInteger y) AdvEuler(BigInteger a, BigInteger b)
         {
             Matrix E = new Matrix(new BigInteger[,]
