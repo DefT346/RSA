@@ -10,14 +10,23 @@ namespace RSA
         {
             var step = blockSize / 8; //1024 / 8 = 128
 
-            var inblocks = ToIntegersArray(bytes, step);
+            var inblocks = ToIntegersArray(bytes, step, true);
+
+            var resultBytes = new List<byte>();
+
+            step++; // расширяем буфер на один байт больше 
 
             for (int i = 0; i < inblocks.Length; i++)
-                inblocks[i] = BigInteger.ModPow(inblocks[i], e, n);
+            {
+                var buffer = new byte[step];
+                var byteArray = BigInteger.ModPow(inblocks[i], e, n).ToByteArray();
 
-            var ret = toBytes(inblocks, step + 1);
+                Array.Copy(byteArray, buffer, byteArray.Length > step ? step : byteArray.Length);
 
-            return ret;
+                resultBytes.AddRange(buffer);
+            }
+
+            return resultBytes.ToArray();
         }
 
         public static byte[] Decrypt(BigInteger d, BigInteger n, byte[] encodedData, int blockSize)
@@ -25,133 +34,73 @@ namespace RSA
             var bytes = new List<byte>();
             var step = blockSize / 8; //1024 / 8 = 128
 
-            var inblocks = toBigIntegers(encodedData, step + 1);
+            var inblocks = ToIntegersArray(encodedData, step + 1, false);
             for (int i = 0; i < inblocks.Length; i++)
                 bytes.AddRange(BigInteger.ModPow(inblocks[i], d, n).ToByteArray());
 
             return bytes.ToArray();
         }
 
-
-        public static byte[] Test(byte[] bytes, BigInteger e, BigInteger d, BigInteger n, int blockSize)
+        public static byte[] Test(byte[] inbytes, BigInteger e, BigInteger d, BigInteger n, int blockSize)
         {
             var step = blockSize / 8; //1024 / 8 = 128
 
-            var inblocks = ToIntegersArray(bytes, step);
+            var inblocks = ToIntegersArray(inbytes, step, true);
+
+            var resultBytes = new List<byte>();
+
 
             for (int i = 0; i < inblocks.Length; i++)
-                inblocks[i] = BigInteger.ModPow(inblocks[i], e, n);
-
-            //var ret0 = inblocks[0].ToByteArray();
-            //var ret1 = inblocks[1].ToByteArray();
-
-            //inblocks[0] = new BigInteger(ret0);
-            //inblocks[1] = new BigInteger(ret1);
-
-            //var ret = toBytes(inblocks, step + 1);
-            //inblocks = toBigIntegers(ret, step + 1);
-
-            for (int i = 0; i < inblocks.Length; i++)
-                inblocks[i] = BigInteger.ModPow(inblocks[i], d, n);
-
-            ////var ret = toBytes(inblocks);
-            ////var encblocks = toBigIntegers(ret, blockSize);
-            //var encblocks = inblocks;
-
-            //var decbytes = new List<byte>();
-
-            //for (int i = 0; i < encblocks.Length; i++)
-            //    decbytes.AddRange(BigInteger.ModPow(encblocks[i], d, n).ToByteArray());
-
-            return new byte[1];
-        }
-
-        //public static byte[] Encrypt(BigInteger e, BigInteger n, byte[] bytes, int blockSize)
-        //{
-        //    return ModifyBytes(bytes, blockSize, e, n);
-        //}
-
-        //public static byte[] Decrypt(BigInteger d, BigInteger n, byte[] bytes, int blockSize)
-        //{
-        //    return ModifyBytes(bytes, blockSize, d, n);
-        //}
-        //BigInteger[] -> byte[]
-        //byte[] -> BigInteger[]
-
-
-        public static byte[] toBytes(BigInteger[] bigIntegers, int step)
-        {
-            var bytes = new List<byte>();
-
-            for (int i = 0; i < bigIntegers.Length; i++)
             {
-                var buffer = new byte[step];
-                var ba = bigIntegers[i].ToByteArray();
+                var buffer = new byte[step + 1];
+                var newval = BigInteger.ModPow(inblocks[i], e, n);
+                //var newval = inblocks[i];
+                var byteArray = newval.ToByteArray();
 
-                Array.Copy(ba, buffer, ba.Length > step ? step : ba.Length);
+                Array.Copy(byteArray, buffer, byteArray.Length > step + 1 ? step + 1 : byteArray.Length);
 
-                bytes.AddRange(buffer);
+                resultBytes.AddRange(buffer);
             }
 
-            return bytes.ToArray();
+
+
+            var resbytes = new List<byte>();
+            var newinblocks = ToIntegersArray(resultBytes.ToArray(), step + 1, false);
+            for (int i = 0; i < newinblocks.Length; i++)
+            {
+                var buffer = new byte[step];
+                newinblocks[i] = BigInteger.ModPow(newinblocks[i], d, n);
+                var byteArray = newinblocks[i].ToByteArray();
+
+                Array.Copy(byteArray, buffer, byteArray.Length < step ? byteArray.Length : step);
+
+                resbytes.AddRange(buffer);
+            }
+
+            return resbytes.ToArray();
+
         }
 
-        public static BigInteger[] toBigIntegers(byte[] bytes, int blockSize)
+        private static BigInteger[] ToIntegersArray(byte[] bytes, int block, bool addZero)
         {
-            return ToIntegersArray(bytes, blockSize);
-        }
-
-        //private static byte[] ModifyBytes(byte[] data, int blockSize, BigInteger key, BigInteger modulus)
-        //{
-        //    var blocks = ToIntegersArray(data, blockSize);
-        //    var bytes = new List<byte>();
-
-        //    for (int i = 0; i < blocks.Length; i++) {
-        //        var encVal = BigInteger.ModPow(blocks[i], key, modulus);
-        //        //var encVal = blocks[i];
-        //        var b = encVal.ToByteArray();
-        //        bytes.AddRange(b);
-        //    }
-
-        //    return bytes.ToArray();
-        //}
-
-        private static BigInteger[] ToIntegersArray(byte[] bytes, int block/*int bitblockSize*/)
-        {
-            //var blockSize = bitblockSize; //bits count
-
             List<BigInteger> blocks = new List<BigInteger>();
 
-
-
-            //var step = blockSize / 8; //1024 / 8 = 128
             var step = block;
             var cursor = 0;
             while (true)
-            {
-                
-                var blockBuffer = new byte[step];
-                for (int i = 0; i < step /*128*/; i++) //цикл записывающий 1024 битное число
+            {            
+                var blockBuffer = new List<byte>();
+                for (int i = 0; i < step; i++)
                 {
                     if (cursor + i >= bytes.Length) break;
 
-                    blockBuffer[i] = bytes[cursor + i];
+                    blockBuffer.Add(bytes[cursor + i]);
                 }
-                blocks.Add(new BigInteger(blockBuffer));
+                if (addZero) blockBuffer.Add(0);
+                blocks.Add(new BigInteger(blockBuffer.ToArray()));
                 cursor += step;
                 if (cursor >= bytes.Length) break;
             }
-
-            //for (int i = 0; i < bytes.Length; i++)
-            //{
-            //    blockBuffer.Add(bytes[i]);
-            //    if (i != 0) 
-            //    if (i % (blockSize / 8) == 0 || i == bytes.Length - 1)
-            //    {
-            //        blocks.Add(new BigInteger(blockBuffer.ToArray()));
-            //        blockBuffer.Clear();
-            //    }
-            //}
 
             return blocks.ToArray();
         }

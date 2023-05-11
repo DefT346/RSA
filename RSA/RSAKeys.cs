@@ -47,11 +47,9 @@ namespace RSA
 
             ExtGCD(fi, e, out _, out BigInteger y); // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
             d = y;
-            //e = AdvEuler(fi, d).y;
 
             if (d < 0)
                 d += fi;
-
         }
 
         static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1); // Функция Эйлера
@@ -67,43 +65,6 @@ namespace RSA
             BigInteger g = ExtGCD(b, a % b, out y, out x); // x и y - переставляются
             y = y - (a / b) * x;
             return g;
-        }
-
-        static (BigInteger x, BigInteger y) AdvEuler(BigInteger a, BigInteger b)
-        {
-            Matrix E = new Matrix(new BigInteger[,]
-            {
-                { 1, 0 },
-                { 0, 1 }
-            });
-
-            while (true)
-            {
-                var max = BigInteger.Max(a, b);
-                var min = BigInteger.Min(a, b);
-                a = max;
-                b = min;
-
-                var q = BigInteger.DivRem(a, b, out BigInteger remainder);
-                if (remainder == 0)
-                {
-                    var col = E.Column(1);
-                    return (col[0], col[1]);
-                }
-                else
-                {
-                    var Eh = new Matrix(new BigInteger[,]
-                    {
-                        { 0, 1 },
-                        { 1, -q }
-                    });
-
-                    E = E * Eh;
-
-                    a = b;
-                    b = remainder;
-                }
-            }
         }
     }
 }
