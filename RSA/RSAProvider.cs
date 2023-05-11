@@ -8,20 +8,20 @@ namespace RSA
 
         public static byte[] Encrypt(BigInteger e, BigInteger n, byte[] bytes, int blockSize)
         {
-            var step = blockSize / 8; //1024 / 8 = 128
-
-            var inblocks = ToIntegersArray(bytes, step, true);
+            var inblocks = ToIntegersArray(bytes, blockSize, true);
 
             var resultBytes = new List<byte>();
 
-            step++; // расширяем буфер на один байт больше 
+            var maxblock = 130; // максимальный размер блока который может понадобиться для числа полсе мода (зависит от размера ключа)
 
             for (int i = 0; i < inblocks.Length; i++)
             {
-                var buffer = new byte[step];
-                var byteArray = BigInteger.ModPow(inblocks[i], e, n).ToByteArray();
+                var buffer = new byte[maxblock];
+                var newval = BigInteger.ModPow(inblocks[i], e, n);
 
-                Array.Copy(byteArray, buffer, byteArray.Length > step ? step : byteArray.Length);
+                var byteArray = newval.ToByteArray();
+
+                Array.Copy(byteArray, buffer, byteArray.Length > maxblock ? maxblock : byteArray.Length);
 
                 resultBytes.AddRange(buffer);
             }
@@ -31,33 +31,30 @@ namespace RSA
 
         public static byte[] Decrypt(BigInteger d, BigInteger n, byte[] encodedData, int blockSize)
         {
-            var bytes = new List<byte>();
-            var step = blockSize / 8; //1024 / 8 = 128
 
-            var inblocks = ToIntegersArray(encodedData, step + 1, false);
-            for (int i = 0; i < inblocks.Length; i++)
-                bytes.AddRange(BigInteger.ModPow(inblocks[i], d, n).ToByteArray());
-
-            return bytes.ToArray();
         }
 
         public static byte[] Test(byte[] inbytes, BigInteger e, BigInteger d, BigInteger n, int blockSize)
         {
-            var step = blockSize / 8; //1024 / 8 = 128
-
-            var inblocks = ToIntegersArray(inbytes, step, true);
+            var inblocks = ToIntegersArray(inbytes, blockSize, true);
 
             var resultBytes = new List<byte>();
 
 
+            var maxblock = 130; // тут максимальный размер блока который может понадобиться для числа полсе мода (зависит от размера ключа)
+
             for (int i = 0; i < inblocks.Length; i++)
             {
-                var buffer = new byte[step + 1];
+                var buffer = new byte[maxblock];
                 var newval = BigInteger.ModPow(inblocks[i], e, n);
+
+                ///проверка
+                var check = BigInteger.ModPow(newval, d, n);
+
                 //var newval = inblocks[i];
                 var byteArray = newval.ToByteArray();
 
-                Array.Copy(byteArray, buffer, byteArray.Length > step + 1 ? step + 1 : byteArray.Length);
+                Array.Copy(byteArray, buffer, byteArray.Length > maxblock ? maxblock : byteArray.Length);
 
                 resultBytes.AddRange(buffer);
             }
@@ -65,14 +62,15 @@ namespace RSA
 
 
             var resbytes = new List<byte>();
-            var newinblocks = ToIntegersArray(resultBytes.ToArray(), step + 1, false);
+            var newinblocks = ToIntegersArray(resultBytes.ToArray(), maxblock, false);
+
             for (int i = 0; i < newinblocks.Length; i++)
             {
-                var buffer = new byte[step];
+                var buffer = new byte[blockSize];
                 newinblocks[i] = BigInteger.ModPow(newinblocks[i], d, n);
                 var byteArray = newinblocks[i].ToByteArray();
 
-                Array.Copy(byteArray, buffer, byteArray.Length < step ? byteArray.Length : step);
+                Array.Copy(byteArray, buffer, byteArray.Length < blockSize ? byteArray.Length : blockSize);
 
                 resbytes.AddRange(buffer);
             }
