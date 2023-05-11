@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSA", "RSA\RSA.csproj", "{FF836815-E66B-44A2-9853-13A2A1B795B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSA", "RSA\RSA.csproj", "{FF836815-E66B-44A2-9853-13A2A1B795B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSAEDS", "RSAEDS\RSAEDS.csproj", "{7F69B89C-048B-41ED-843C-1F55CD81612E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{17FF38AF-A527-4454-910C-8B2B45DEBB6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{FF836815-E66B-44A2-9853-13A2A1B795B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF836815-E66B-44A2-9853-13A2A1B795B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF836815-E66B-44A2-9853-13A2A1B795B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F69B89C-048B-41ED-843C-1F55CD81612E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F69B89C-048B-41ED-843C-1F55CD81612E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F69B89C-048B-41ED-843C-1F55CD81612E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F69B89C-048B-41ED-843C-1F55CD81612E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17FF38AF-A527-4454-910C-8B2B45DEBB6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17FF38AF-A527-4454-910C-8B2B45DEBB6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17FF38AF-A527-4454-910C-8B2B45DEBB6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17FF38AF-A527-4454-910C-8B2B45DEBB6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,12 +2,14 @@
 
 namespace RSA
 {
-    internal class RSAKeys
+    public class RSAKeys
     {
         public BigInteger e { get; private set; }
         public BigInteger d { get; private set; }
         public BigInteger n { get; private set; }
         public int size { get; private set; }
+
+        public int blockSize { get => size - 1; }
 
         public RSAKeys(int size)
         {
@@ -26,27 +28,46 @@ namespace RSA
             Console.WriteLine("\nГенерация ключей");
             n = p * q;
 
+            Console.WriteLine($"\nn = {n}");
+
             var fi = Euler(p, q);
 
-            d = new BigPrime(p.bitsCount + q.bitsCount).ToBigInteger();
-            while (d >= fi)
+            e = new BigPrime(p.bitsCount + q.bitsCount).ToBigInteger();
+            while (e >= fi)
             {
-                d -= fi - 1;
+                e -= fi - 1;
             }
             while (true)
             {
-                if (BigInteger.GreatestCommonDivisor(d, fi) == 1)
+                if (BigInteger.GreatestCommonDivisor(e, fi) == 1)
                     break;
-                else d -= 1;
+                else e -= 1;
             }
 
-            e = AdvEuler(fi, d).y; // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
 
-            if (e < 0)
-                e += fi;
+            ExtGCD(fi, e, out _, out BigInteger y); // [mx + de = 1]; (ax + by = 1) => e = y; de = 1 (mod m)
+            d = y;
+            //e = AdvEuler(fi, d).y;
+
+            if (d < 0)
+                d += fi;
+
         }
 
         static BigInteger Euler(BigPrime p, BigPrime q) => (p - 1) * (q - 1); // Функция Эйлера
+
+        public static BigInteger ExtGCD(BigInteger a, BigInteger b, out BigInteger x, out BigInteger y)
+        {
+            if (b == 0)
+            {
+                x = 1;
+                y = 0;
+                return a;
+            }
+            BigInteger g = ExtGCD(b, a % b, out y, out x); // x и y - переставляются
+            y = y - (a / b) * x;
+            return g;
+        }
 
         static (BigInteger x, BigInteger y) AdvEuler(BigInteger a, BigInteger b)
         {
