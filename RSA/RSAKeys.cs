@@ -9,8 +9,6 @@ namespace RSA
         public BigInteger n { get; private set; }
         public int size { get; private set; }
 
-        public int blockSize { get => size - 1; }
-
         public RSAKeys(int size)
         {
             this.size = size;

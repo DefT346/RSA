@@ -1,82 +1,74 @@
 ﻿using System.Numerics;
-using System.Text;
 
 namespace RSA
 {
     public class RSAProvider
     {
-
+        /// <summary>
+        /// Шифрование байтовых данных
+        /// </summary>
+        /// <param name="e">Открытый ключ</param>
+        /// <param name="n"></param>
+        /// <param name="bytes"></param>
+        /// <param name="blockSize">Размер шифруемого блока в байтах</param>
+        /// <returns></returns>
         public static byte[] Encrypt(BigInteger e, BigInteger n, byte[] bytes, int blockSize)
         {
             var inblocks = ToIntegersArray(bytes, blockSize, true);
 
             var resultBytes = new List<byte>();
 
-            var maxblock = 130; // максимальный размер блока который может понадобиться для числа полсе мода (зависит от размера ключа)
-
             for (int i = 0; i < inblocks.Length; i++)
             {
-                var buffer = new byte[maxblock];
                 var newval = BigInteger.ModPow(inblocks[i], e, n);
-
                 var byteArray = newval.ToByteArray();
-
-                Array.Copy(byteArray, buffer, byteArray.Length > maxblock ? maxblock : byteArray.Length);
-
-                resultBytes.AddRange(buffer);
+                WriteInt(byteArray.Length, ref resultBytes);
+                resultBytes.AddRange(byteArray);
             }
 
             return resultBytes.ToArray();
         }
 
-        public static byte[] Decrypt(BigInteger d, BigInteger n, byte[] encodedData, int blockSize)
+        public static byte[] Decrypt(BigInteger d, BigInteger n, byte[] encBytes, int blockSize)
         {
+            var outbytes = new List<byte>();
+            for (int i = 0; i < encBytes.Length; i++)
+            {
+                var length = ReadInt(ref i, ref encBytes); // чтение размера массива байтов перед его чтением
 
+                var buffer = new byte[length]; // чтение числа
+                for (int j = 0; j < length; j++)
+                    buffer[j] = encBytes[i + j];
+
+                i += length - 1; // смещение
+
+                // Расшифровка
+                var num = new BigInteger(buffer);
+                var dec = BigInteger.ModPow(num, d, n);
+                outbytes.AddRange(Cut(dec, blockSize));
+            }
+
+            return outbytes.ToArray();
         }
 
-        public static byte[] Test(byte[] inbytes, BigInteger e, BigInteger d, BigInteger n, int blockSize)
+        private static void WriteInt(int _value, ref List<byte> buffer)
         {
-            var inblocks = ToIntegersArray(inbytes, blockSize, true);
+            buffer.AddRange(BitConverter.GetBytes(_value));
+        }
 
-            var resultBytes = new List<byte>();
+        private static int ReadInt(ref int readPos, ref byte[] buffer)
+        {
+            int _value = BitConverter.ToInt32(buffer, readPos); // Преобразование байтов в int
+            readPos += 4; // Прибавим 4 к позиции чтения буфера
+            return _value;
+        }
 
-
-            var maxblock = 130; // тут максимальный размер блока который может понадобиться для числа полсе мода (зависит от размера ключа)
-
-            for (int i = 0; i < inblocks.Length; i++)
-            {
-                var buffer = new byte[maxblock];
-                var newval = BigInteger.ModPow(inblocks[i], e, n);
-
-                ///проверка
-                var check = BigInteger.ModPow(newval, d, n);
-
-                //var newval = inblocks[i];
-                var byteArray = newval.ToByteArray();
-
-                Array.Copy(byteArray, buffer, byteArray.Length > maxblock ? maxblock : byteArray.Length);
-
-                resultBytes.AddRange(buffer);
-            }
-
-
-
-            var resbytes = new List<byte>();
-            var newinblocks = ToIntegersArray(resultBytes.ToArray(), maxblock, false);
-
-            for (int i = 0; i < newinblocks.Length; i++)
-            {
-                var buffer = new byte[blockSize];
-                newinblocks[i] = BigInteger.ModPow(newinblocks[i], d, n);
-                var byteArray = newinblocks[i].ToByteArray();
-
-                Array.Copy(byteArray, buffer, byteArray.Length < blockSize ? byteArray.Length : blockSize);
-
-                resbytes.AddRange(buffer);
-            }
-
-            return resbytes.ToArray();
-
+        private static byte[] Cut(BigInteger num, int blockSize)
+        {
+            var buffer = new byte[blockSize];
+            var byteArray = num.ToByteArray();
+            Array.Copy(byteArray, buffer, byteArray.Length < blockSize ? byteArray.Length : blockSize);
+            return buffer;
         }
 
         private static BigInteger[] ToIntegersArray(byte[] bytes, int block, bool addZero)

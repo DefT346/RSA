@@ -9,13 +9,12 @@ Console.WriteLine($"\nЗакрытый ключ d: {keys.d}");
 
 while (true)
 {
-    Console.Write($"\nВведите сообщение: ");
-    var message = Console.ReadLine();
+    var blocksize = 100; // размер блока шифруемых данных в байтах (входное сообщение делится на блоки по 100 байт)
 
-    //var encodedData = RSAProvider.Encrypt(keys.e, keys.n, Encoding.UTF8.GetBytes(message), blocksize);
-    //var source = RSAProvider.Decrypt(keys.d, keys.n, encodedData, blocksize);
+    Console.Write($"\nВведите сообщение: "); var message = Console.ReadLine();
 
-    var res = RSAProvider.Test(Encoding.UTF8.GetBytes(message), keys.e/*3620132861*/, keys.d/*1111729205*/, keys.n/*4196583073*/, 100);
+    var encodedData = RSAProvider.Encrypt(keys.e, keys.n, Encoding.UTF8.GetBytes(message), blocksize);
+    var source = RSAProvider.Decrypt(keys.d, keys.n, encodedData, blocksize);
 
-    Console.WriteLine("\nРасшифрованное сообщение: " + Encoding.UTF8.GetString(res));
+    Console.WriteLine("\nРасшифрованное сообщение: " + Encoding.UTF8.GetString(source));
 }
