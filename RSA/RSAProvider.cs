@@ -65,9 +65,19 @@ namespace RSA
 
         private static byte[] Cut(BigInteger num, int blockSize)
         {
-            var buffer = new byte[blockSize];
+            
             var byteArray = num.ToByteArray();
-            Array.Copy(byteArray, buffer, byteArray.Length < blockSize ? byteArray.Length : blockSize);
+
+            var size = byteArray.Length < blockSize ? byteArray.Length : blockSize;
+
+            if (byteArray[byteArray.Length - 1] == 0)
+                size -= 1;
+
+            var buffer = new byte[size];
+
+
+
+            Array.Copy(byteArray, buffer, size);
             return buffer;
         }
 

@@ -9,24 +9,28 @@ namespace RSA
         public BigInteger n { get; private set; }
         public int size { get; private set; }
 
-        public RSAKeys(int size)
+        private bool debug;
+
+        public RSAKeys(int size, bool debug = false)
         {
             this.size = size;
+            this.debug = debug;
+            Console.WriteLine($"Инициализация RSA({size})...");
             Generate(this.size);
         }
 
         public void Generate(int size)
         {
-            Console.WriteLine("Поиск простых чисел..");
+            if (debug) Console.WriteLine("Поиск простых чисел..");
             var p = new BigPrime(size / 2);
             var q = new BigPrime(size / 2);
-            Console.WriteLine($"\np = {p}");
-            Console.WriteLine($"\nq = {q}");
+            if (debug) Console.WriteLine($"\np = {p}");
+            if (debug) Console.WriteLine($"\nq = {q}");
 
-            Console.WriteLine("\nГенерация ключей");
+            if (debug) Console.WriteLine("\nГенерация ключей");
             n = p * q;
 
-            Console.WriteLine($"\nn = {n}");
+            if (debug) Console.WriteLine($"\nn = {n}");
 
             var fi = Euler(p, q);
 

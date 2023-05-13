@@ -42,6 +42,8 @@ namespace RSAEDS
 
         public static string ShowDialog(string filter = "")
         {
+            Console.WriteLine("\nВыберите документ:");
+
             var ofn = new OpenFileName();
             ofn.lStructSize = Marshal.SizeOf(ofn);
             // Define Filter for your extensions (Excel, ...)
@@ -62,12 +64,25 @@ namespace RSAEDS
             // чтение из файла
             using (FileStream fstream = File.OpenRead(path))
             {
+                var p = fstream.Name.Split('\\');
+                Console.WriteLine($"\nОткрыт документ: {p.Last()}");
                 // выделяем массив для считывания данных из файла
                 byte[] buffer = new byte[fstream.Length];
                 // считываем данные
                 await fstream.ReadAsync(buffer, 0, buffer.Length);
                 // декодируем байты в строку
                 return buffer;
+            }
+        }
+
+        public static async Task WriteFile(string path, byte[] buffer)
+        {
+            // запись в файл
+            using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                // запись массива байтов в файл
+                await fstream.WriteAsync(buffer, 0, buffer.Length);
+                Console.WriteLine("Текст записан в файл");
             }
         }
     }

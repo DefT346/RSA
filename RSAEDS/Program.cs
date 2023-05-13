@@ -1,16 +1,14 @@
-﻿using RSAEDS;
-using RSA;
+﻿using RSA;
+using RSAEDS;
+using System.Text;
 
-var document = await FileDialog.ReadFile(FileDialog.ShowDialog());
+Commands.Print("ЭЦП RSA", ConsoleColor.Yellow);
+Commands.Print("sign - создать подпись", ConsoleColor.DarkGray);
+Commands.Print("verify - проверить подпись", ConsoleColor.DarkGray);
 
-var hashedDocument = ComputeSHA512(document);
+Interface.Run();
 
-var keys = new RSAKeys(2048);
 
-RSAProvider.Encrypt(keys.e, keys.n, hashedDocument);
 
-byte[] ComputeSHA512(byte[] data)
-{
-    using (System.Security.Cryptography.SHA512 shaM = System.Security.Cryptography.SHA512.Create())
-        return shaM.ComputeHash(data);
-}
+
+
